@@ -10,6 +10,8 @@ services:
     build:
       context: .
       dockerfile: .docker/php-fpm/Dockerfile
+    depends_on:
+      - postgresql
     working_dir: /var/www
     volumes:
       - ./.docker/php-fpm/php.ini:/usr/local/etc/php/conf.d/php.ini
@@ -23,6 +25,8 @@ services:
   server:
     container_name: ${PROJECT_NAME}-server
     image: nginx:stable-alpine
+    depends_on:
+      - postgresql
     ports:
       - 80:80
       - 443:443
@@ -36,3 +40,23 @@ services:
       - project_network
     tty: true
     restart: unless-stopped
+
+  postgresql:
+    container_name: ${PROJECT_NAME}-postgres
+    image: postgres:14
+    hostname: ${PROJECT_NAME}_postgresql_host
+    env_file:
+      - ./.docker/postgresql/config.ini
+    ports:
+      - 5432:5432
+    volumes:
+      - postgresql:/var/lib/postgresql/data
+    networks:
+      - project_network
+    tty: true
+    restart: unless-stopped
+
+volumes:
+  postgresql:
+    driver: local
+    name: ${PROJECT_NAME}_postgresql
