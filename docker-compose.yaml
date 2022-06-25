@@ -1,0 +1,38 @@
+version: "3.8"
+
+networks:
+  project_network:
+    driver: bridge
+
+services:
+  php:
+    container_name: ${PROJECT_NAME}-php
+    build:
+      context: .
+      dockerfile: .docker/php-fpm/Dockerfile
+    working_dir: /var/www
+    volumes:
+      - ./.docker/php-fpm/php.ini:/usr/local/etc/php/conf.d/php.ini
+      - ./.docker/php-fpm/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+      - ./code/:/var/www:delegated
+    networks:
+      - project_network
+    tty: true
+    restart: unless-stopped
+
+  server:
+    container_name: ${PROJECT_NAME}-server
+    image: nginx:stable-alpine
+    ports:
+      - 80:80
+      - 443:443
+    links:
+      - php:php
+    volumes:
+      - ./.docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./.docker/nginx/ssl/:/etc/nginx/ssl/
+      - ./code:/var/www
+    networks:
+      - project_network
+    tty: true
+    restart: unless-stopped
