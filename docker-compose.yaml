@@ -12,6 +12,8 @@ services:
       dockerfile: .docker/php-fpm/Dockerfile
     depends_on:
       - postgresql
+      - redis
+      - mysql
     working_dir: /var/www
     volumes:
       - ./.docker/php-fpm/php.ini:/usr/local/etc/php/conf.d/php.ini
@@ -27,6 +29,8 @@ services:
     image: nginx:stable-alpine
     depends_on:
       - postgresql
+      - redis
+      - mysql
     ports:
       - 80:80
       - 443:443
@@ -48,7 +52,7 @@ services:
     env_file:
       - ./.docker/postgresql/config.ini
     ports:
-      - 5432:5432
+      - ${POSTGRES_PORT:-5432}:5432
     volumes:
       - postgresql:/var/lib/postgresql/data
     networks:
@@ -81,9 +85,24 @@ services:
     env_file:
       - ./.docker/redis/config.ini
     ports:
-      - 6379:6379
+      - ${REDIS_PORT:-6379}:6379
     volumes:
       - redis:/data
+    networks:
+      - project_network
+    tty: true
+    restart: unless-stopped
+
+  mysql:
+    container_name: ${PROJECT_NAME}-mysql
+    image: mysql:latest
+    hostname: ${PROJECT_NAME}_mysql_host
+    env_file:
+      - ./.docker/mysql/config.ini
+    ports:
+      - ${MYSQL_PORT:-3306}:3306
+    volumes:
+      - mysql:/var/lib/mysql
     networks:
       - project_network
     tty: true
@@ -99,3 +118,6 @@ volumes:
   redis:
     driver: local
     name: ${PROJECT_NAME}_redis
+  mysql:
+    driver: local
+    name: ${PROJECT_NAME}_mysql
