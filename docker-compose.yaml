@@ -56,7 +56,28 @@ services:
     tty: true
     restart: unless-stopped
 
+  pgadmin:
+    container_name: ${PROJECT_NAME}-pgadmin
+    image: dpage/pgadmin4
+    depends_on:
+      - postgresql
+    env_file:
+      - ./.docker/pgadmin/config.ini
+    ports:
+      - ${PGADMIN_PORT:-5050}:80
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    networks:
+      - project_network
+    links:
+      - postgresql
+    tty: true
+    restart: unless-stopped
+
 volumes:
   postgresql:
     driver: local
     name: ${PROJECT_NAME}_postgresql
+  pgadmin:
+    driver: local
+    name: ${PROJECT_NAME}_pgadmin
