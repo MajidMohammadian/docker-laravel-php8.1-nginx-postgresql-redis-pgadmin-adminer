@@ -17,7 +17,7 @@ services:
     working_dir: /var/www
     volumes:
       - ./.docker/php-fpm/php.ini:/usr/local/etc/php/conf.d/php.ini
-      - ./.docker/php-fpm/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+      # - ./.docker/php-fpm/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
       - ./code/:/var/www:delegated
     networks:
       - project_network

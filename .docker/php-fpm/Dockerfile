@@ -1,4 +1,4 @@
-FROM php:8.1.0-fpm
+FROM php:8.0.2-fpm
 
 # Set working directory
 WORKDIR /var/www/
@@ -21,8 +21,8 @@ RUN apt-get update && apt-get install -y \
     git \
     curl \
     libmagickwand-dev --no-install-recommends \
-    && pecl install xdebug \
-    && docker-php-ext-enable xdebug \
+    # && pecl install xdebug \
+    # && docker-php-ext-enable xdebug \
     && pecl install imagick \
     && docker-php-ext-enable imagick \
     && docker-php-ext-install pdo pdo_pgsql pgsql \
