@@ -81,6 +81,7 @@ services:
   redis:
     container_name: ${PROJECT_NAME}-redis
     image: redis:alpine
+    hostname: ${PROJECT_NAME}_redis_host
     command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
     env_file:
       - ./.docker/redis/config.ini
