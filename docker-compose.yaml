@@ -124,6 +124,37 @@ services:
     tty: true
     restart: unless-stopped
 
+  elasticsearch:
+    container_name: ${PROJECT_NAME}-elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_STACK_VERSION}
+    env_file:
+      - .docker/elasticsearch/config.ini
+    ports:
+      - ${ELASTIC_PORT:-9200}:9200
+    volumes:
+      - ./.docker/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - elasticsearch:/usr/share/elasticsearch/data
+    networks:
+      - project_network
+    tty: true
+    restart: unless-stopped
+
+  kibana:
+    container_name: ${PROJECT_NAME}-kibana
+    image: docker.elastic.co/kibana/kibana:${KIBANA_STACK_VERSION}
+    depends_on:
+      - elasticsearch
+    env_file:
+      - ./.docker/kibana/config.ini
+    ports:
+      - ${KIBANA_PORT:-5601}:5601
+    volumes:
+      - kibana:/usr/share/kibana/data
+    networks:
+      - project_network
+    tty: true
+    restart: unless-stopped
+
 volumes:
   postgresql:
     driver: local
@@ -137,3 +168,9 @@ volumes:
   mysql:
     driver: local
     name: ${PROJECT_NAME}_mysql
+  elasticsearch:
+    driver: local
+    name: ${PROJECT_NAME}_elasticsearch
+  kibana:
+    driver: local
+    name: ${PROJECT_NAME}_kibana
